@@ -20,10 +20,9 @@ pub async fn run() -> std::io::Result<()> {
             .wrap(Logger::default())
             .route("/", web::get().to(|| async { "Memories API" }))
             .configure(routes::post_routes::routes)
-            // .configure(routes::user_routes::routes)
+        // .configure(routes::user_routes::routes)
     })
-        .bind("0.0.0.0:4000")
-        .unwrap()
+        .bind("0.0.0.0:4000")?
         .run()
         .await
 }

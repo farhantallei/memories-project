@@ -16,7 +16,6 @@ impl <T: PostRepository> GetAllPostsUseCase<T> {
     }
 
     pub async fn get_all(&self) -> Result<Vec<Post>, Error> {
-        let posts = self.post_service.get_all().await;
-        Ok(posts)
+        self.post_service.get_all().await
     }
 }

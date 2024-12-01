@@ -1,2 +1,3 @@
-pub mod get_all_posts;
+pub mod get_post;
 pub mod create_post;
+pub mod update_post;

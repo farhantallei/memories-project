@@ -1,13 +1,13 @@
 use std::env;
 use std::sync::Arc;
 use async_trait::async_trait;
-use diesel::RunQueryDsl;
+use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
 use crate::domain::entities::post::Post;
 use crate::domain::repositories::post_repository::PostRepository;
 use crate::infrastructure::db::connection::{establish_connection, DBPool};
 use crate::presentation::handlers::post_handlers::NewPost;
 use crate::schema;
-use crate::schema::posts::dsl::posts;
+use crate::schema::posts::dsl::*;
 
 #[derive(Clone)]
 pub struct PostgresPostRepository {
@@ -27,13 +27,31 @@ impl PostgresPostRepository {
 #[async_trait]
 impl PostRepository for Arc<PostgresPostRepository> {
     async fn find_all(&self) -> Result<Vec<Post>, diesel::result::Error> {
-        let result = posts.load::<Post>(&mut self.pool.get().unwrap())?;
+        let result = posts
+            .order(created_at.desc())
+            .load::<Post>(&mut self.pool.get().unwrap())?;
+        Ok(result)
+    }
+
+    async fn find_by_id(&self, input_id: i32) -> Result<Option<Post>, diesel::result::Error> {
+        let result = posts
+            .find(input_id)
+            .first::<Post>(&mut self.pool.get().unwrap())
+            .optional()
+            .expect("Error loading post");
         Ok(result)
     }
 
     async fn save(&self, post: &NewPost) -> Result<(), diesel::result::Error> {
         diesel::insert_into(schema::posts::table)
             .values(post)
+            .execute(&mut self.pool.get().unwrap())?;
+        Ok(())
+    }
+
+    async fn update(&self, input_id: i32, post: &NewPost) -> Result<(), diesel::result::Error> {
+        diesel::update(posts.find(input_id))
+            .set(post)
             .execute(&mut self.pool.get().unwrap())?;
         Ok(())
     }

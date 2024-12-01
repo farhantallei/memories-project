@@ -18,7 +18,15 @@ impl<T: PostRepository> PostService<T> {
         self.post_repo.find_all().await
     }
 
+    pub async fn get_by_id(&self, id: i32) -> Result<Option<Post>, diesel::result::Error> {
+        self.post_repo.find_by_id(id).await
+    }
+
     pub async fn create_post(&self, new_post: NewPost) -> Result<(), diesel::result::Error> {
         self.post_repo.save(&new_post).await
+    }
+
+    pub async fn update_post(&self, id: i32, new_post: NewPost) -> Result<(), diesel::result::Error> {
+        self.post_repo.update(id, &new_post).await
     }
 }

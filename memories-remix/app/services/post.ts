@@ -36,18 +36,32 @@ export async function getPosts({}: LoaderFunctionArgs) {
 const postSchema = v.object({
   creator: v.pipe(
     v.string("Nama tidak valid"),
+    v.trim(),
     v.nonEmpty("Nama tidak boleh kosong")
   ),
   title: v.pipe(
     v.string("Judul tidak valid"),
+    v.trim(),
     v.nonEmpty("Judul tidak boleh kosong")
   ),
   message: v.pipe(
     v.string("Konten tidak valid"),
+    v.trim(),
     v.nonEmpty("Konten tidak boleh kosong")
+  ),
+  tags: v.pipe(
+    v.string("Tag tidak valid"),
+    v.trim(),
+    v.transform((v) =>
+      v
+        .split(",")
+        .map((v) => v.trim())
+        .filter(Boolean)
+    )
   ),
   selected_file: v.pipe(
     v.string("URL Gambar tidak valid"),
+    v.trim(),
     v.url("URL Gambar tidak valid")
   ),
 });
@@ -65,7 +79,7 @@ export async function createPost({ request }: ActionFunctionArgs) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...result.output, tags: [] }),
+        body: JSON.stringify(result.output),
       });
 
       if (!response.ok) {
@@ -85,6 +99,7 @@ export async function createPost({ request }: ActionFunctionArgs) {
     creator: issues.nested?.creator,
     title: issues.nested?.title,
     message: issues.nested?.message,
+    tags: issues.nested?.tags,
     selected_file: issues.nested?.selected_file,
   };
   return ["error", error] as const;

@@ -73,6 +73,30 @@ function FormPost() {
       </div>
       <div>
         <Label
+          htmlFor="tags"
+          className={cn(errors?.tags && "text-destructive")}
+        >
+          Tag{" "}
+          <span className="text-muted-foreground font-normal">(opsional)</span>
+        </Label>
+        <Input
+          id="tags"
+          name="tags"
+          className={cn(
+            errors?.tags &&
+              "border border-destructive focus-visible:ring-destructive"
+          )}
+        />
+        <p className="text-sm text-muted-foreground">
+          Gunakan koma (,) untuk memisahkan tag. Contoh:{" "}
+          <code>remix, react</code>
+        </p>
+        {errors?.tags && (
+          <p className="text-destructive text-sm">{errors.tags[0]}</p>
+        )}
+      </div>
+      <div>
+        <Label
           htmlFor="selected_file"
           className={cn(errors?.selected_file && "text-destructive")}
         >

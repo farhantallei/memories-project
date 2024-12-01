@@ -1,18 +1,20 @@
-function Post() {
+import { PostRes } from "~/services/post";
+
+function Post({ post }: { post: PostRes }) {
   return (
-    <div className="flex items-center space-x-4 p-4 bg-white rounded-lg shadow">
+    <div className="flex items-center space-x-4 p-4 bg-white rounded-lg border">
       <div className="flex-shrink-0">
         <img
-          src="https://kzmn748xy52wgcdf5gz8.lite.vusercontent.net/placeholder.svg?height=100&width=100"
-          alt="title"
+          src={post.selected_file}
+          alt={post.title}
           width={100}
           height={100}
           className="rounded-lg object-cover"
         />
       </div>
       <div>
-        <h2 className="text-xl font-semibold">Title</h2>
-        <p className="text-gray-600 line-clamp-2">Message</p>
+        <h2 className="text-xl font-semibold">{post.title}</h2>
+        <p className="text-gray-600 line-clamp-2">{post.message}</p>
       </div>
     </div>
   );

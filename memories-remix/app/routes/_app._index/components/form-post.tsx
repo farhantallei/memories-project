@@ -1,47 +1,14 @@
-import { Form, useActionData, useNavigation } from "@remix-run/react";
+import { Form } from "@remix-run/react";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
 import { LinkIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
 import { cn } from "~/lib/utils";
+import useFormSubmission from "~/hooks/use-form-submission";
 
 function FormPost() {
-  const actionData = useActionData<
-    | ["error" | "success"]
-    | ["error", { [k: string]: [string, ...string[]] | undefined }]
-  >();
-  const navigation = useNavigation();
-
-  const formRef = useRef<HTMLFormElement>(null);
-  const creatorRef = useRef<HTMLInputElement>(null);
-
-  const [prevNavState, setPrevNavState] = useState(navigation.state);
-  const [errors, setErrors] = useState<{
-    [k: string]: [string, ...string[]] | undefined;
-  }>();
-
-  useEffect(() => {
-    if (prevNavState === "submitting") {
-      if (actionData?.[0] === "error") {
-        const errors = actionData[1];
-
-        if (errors) {
-          setErrors(errors);
-        } else {
-          alert("Gagal membuat memori");
-          setErrors(undefined);
-        }
-      } else {
-        formRef.current?.reset();
-        setErrors(undefined);
-      }
-
-      creatorRef.current?.focus();
-    }
-    setPrevNavState(navigation.state);
-  }, [navigation.state]);
+  const { formRef, firstInputRef, errors, state } = useFormSubmission();
 
   return (
     <Form ref={formRef} replace className="space-y-2" method="post">
@@ -54,7 +21,7 @@ function FormPost() {
           Pembuat
         </Label>
         <Input
-          ref={creatorRef}
+          ref={firstInputRef}
           id="creator"
           name="creator"
           className={cn(
@@ -132,7 +99,7 @@ function FormPost() {
       </div>
       <Button
         type="submit"
-        disabled={navigation.state === "submitting"}
+        disabled={state === "submitting"}
         className="w-full"
       >
         Upload

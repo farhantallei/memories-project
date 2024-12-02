@@ -59,8 +59,8 @@ pub async fn create_post_handler(
     match CreatePostUseCase::new(repo.into_inner())
         .execute(input.into_inner()).await {
         Ok(_) => HttpResponse::Created().finish(),
-        Err(ex) => {
-            error!("Error creating post! {:?}", ex);
+        Err(_) => {
+            error!("Error creating post!");
             HttpResponse::InternalServerError().body("Please try again later")
         }
     }
@@ -74,9 +74,12 @@ pub async fn update_post_handler(
 ) -> HttpResponse {
     match UpdatePostUseCase::new(repo.into_inner())
         .execute(path.into_inner().0, input.into_inner()).await {
-        Ok(_) => HttpResponse::Ok().finish(),
-        Err(ex) => {
-            error!("Error updating post! {:?}", ex);
+        Ok(res) => match res {
+            Some(_) => HttpResponse::Ok().finish(),
+            None => HttpResponse::NotFound().body("Post not found"),
+        },
+        Err(_) => {
+            error!("Error updating post!");
             HttpResponse::InternalServerError().body("Please try again later")
         }
     }

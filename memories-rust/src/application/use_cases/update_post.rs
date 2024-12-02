@@ -14,7 +14,12 @@ impl<T: PostRepository> UpdatePostUseCase<T> {
         }
     }
 
-    pub async fn execute(&self, id: i32, new_post: NewPost) -> Result<(), diesel::result::Error> {
-        self.post_service.update_post(id, new_post).await
+    pub async fn execute(&self, id: i32, new_post: NewPost) -> Result<Option<()>, diesel::result::Error> {
+        let existing_post = self.post_service.get_by_id(id).await?;
+        if existing_post.is_none() {
+            return Ok(None);
+        }
+        self.post_service.update_post(id, new_post).await?;
+        Ok(Some(()))
     }
 }

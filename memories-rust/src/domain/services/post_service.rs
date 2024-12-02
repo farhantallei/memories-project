@@ -34,4 +34,8 @@ impl<T: PostRepository> PostService<T> {
     pub async fn delete(&self, id: i32) -> Result<Option<()>, Error> {
         self.post_repo.delete(id).await
     }
+
+    pub async fn like(&self, id: i32) -> Result<Option<()>, Error> {
+        self.post_repo.like(id).await
+    }
 }

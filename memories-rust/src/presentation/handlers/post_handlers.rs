@@ -5,6 +5,7 @@ use crate::application::use_cases::create_post::CreatePostUseCase;
 use crate::application::use_cases::delete_post::DeletePostUseCase;
 use crate::application::use_cases::get_post::GetPostUseCase;
 use crate::application::use_cases::get_posts::GetPostsUseCase;
+use crate::application::use_cases::like_post::LikePostUseCase;
 use crate::application::use_cases::update_post::UpdatePostUseCase;
 use crate::infrastructure::repositories::postgres_post_repository::PostgresPostRepository;
 
@@ -50,6 +51,24 @@ pub async fn create_post_handler(
         Ok(_) => HttpResponse::Created().finish(),
         Err(_) => {
             error!("Error creating post!");
+            HttpResponse::InternalServerError().body("Please try again later")
+        }
+    }
+}
+
+#[post("/{id}/like")]
+pub async fn like_post_handler(
+    repo: web::Data<PostgresPostRepository>,
+    path: web::Path<(i32,)>,
+) -> HttpResponse {
+    match LikePostUseCase::new(repo.into_inner())
+        .execute(path.into_inner().0).await {
+        Ok(res) => match res {
+            Some(_) => HttpResponse::Ok().finish(),
+            None => HttpResponse::NotFound().body("Post not found"),
+        },
+        Err(_) => {
+            error!("Error liking post!");
             HttpResponse::InternalServerError().body("Please try again later")
         }
     }

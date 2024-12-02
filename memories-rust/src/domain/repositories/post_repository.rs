@@ -10,4 +10,5 @@ pub trait PostRepository {
     async fn save(&self, post: &NewPostDto) -> Result<(), Error>;
     async fn update(&self, input_id: i32, post: &NewPostDto) -> Result<Option<()>, Error>;
     async fn delete(&self, input_id: i32) -> Result<Option<()>, Error>;
+    async fn like(&self, input_id: i32) -> Result<Option<()>, Error>;
 }

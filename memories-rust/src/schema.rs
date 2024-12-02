@@ -8,7 +8,7 @@ diesel::table! {
         creator -> Text,
         tags -> Array<Nullable<Text>>,
         selected_file -> Text,
-        like_count -> Nullable<Int4>,
-        created_at -> Nullable<Timestamp>,
+        like_count -> Int4,
+        created_at -> Timestamp,
     }
 }

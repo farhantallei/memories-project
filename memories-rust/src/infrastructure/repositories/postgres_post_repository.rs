@@ -68,4 +68,14 @@ impl PostRepository for Arc<PostgresPostRepository> {
         }
         Ok(Some(()))
     }
+
+    async fn like(&self, input_id: i32) -> Result<Option<()>, Error> {
+        let num_updated = diesel::update(posts.find(input_id))
+            .set(like_count.eq(like_count + 1))
+            .execute(&mut self.pool.get().unwrap())?;
+        if num_updated == 0 {
+            return Ok(None);
+        }
+        Ok(Some(()))
+    }
 }

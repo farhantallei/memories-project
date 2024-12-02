@@ -10,6 +10,6 @@ pub struct Post {
     pub creator: String,
     pub tags: Vec<Option<String>>,
     pub selected_file: String,
-    pub like_count: Option<i32>,
-    pub created_at: Option<SystemTime>,
+    pub like_count: i32,
+    pub created_at: SystemTime,
 }

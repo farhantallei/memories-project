@@ -7,6 +7,6 @@ CREATE TABLE posts (
     creator TEXT NOT NULL,
     tags TEXT[] NOT NULL,
     selected_file TEXT NOT NULL,
-    like_count INT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    like_count INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

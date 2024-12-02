@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import { atom } from "jotai";
 
 type Post = {
   id: number;
@@ -21,7 +22,15 @@ export const actions = {
   CREATE_POST: "create-post",
   DELETE_POST: "delete-post",
   UPDATE_POST: "update-post",
-}
+};
+
+export const postAtom = atom<Record<keyof PostReq, string> & { id?: number }>({
+  creator: "",
+  title: "",
+  message: "",
+  tags: "",
+  selected_file: "",
+});
 
 export async function getPosts() {
   try {

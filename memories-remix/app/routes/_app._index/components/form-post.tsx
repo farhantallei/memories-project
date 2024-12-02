@@ -6,16 +6,33 @@ import { Button } from "~/components/ui/button";
 import { LinkIcon } from "lucide-react";
 import { cn } from "~/lib/utils";
 import useFormSubmission from "~/hooks/use-form-submission";
-import { actions } from "~/services/post";
+import { actions, postAtom } from "~/services/post";
+import { useAtom } from "jotai";
 
 function FormPost() {
+  const [postState, setPostState] = useAtom(postAtom);
+
   const { formRef, firstInputRef, errors, state } = useFormSubmission(
-    actions.CREATE_POST
+    postState.id != null ? actions.UPDATE_POST : actions.CREATE_POST,
+    {
+      onSuccess: () =>
+        setPostState({
+          id: undefined,
+          creator: "",
+          title: "",
+          message: "",
+          tags: "",
+          selected_file: "",
+        }),
+    }
   );
 
   return (
     <Form ref={formRef} replace className="space-y-2" method="post">
-      <h2 className="text-xl font-semibold">Buat Memori</h2>
+      <h2 className="text-xl font-semibold">{postState.id != null ? "Perbarui" : "Buat"} Memori</h2>
+      {postState.id != null && (
+        <input type="hidden" name="id" value={postState.id} />
+      )}
       <div>
         <Label
           htmlFor="creator"
@@ -27,6 +44,10 @@ function FormPost() {
           ref={firstInputRef}
           id="creator"
           name="creator"
+          value={postState.creator}
+          onChange={(e) =>
+            setPostState({ ...postState, creator: e.target.value })
+          }
           className={cn(
             errors?.creator &&
               "border border-destructive focus-visible:ring-destructive"
@@ -46,6 +67,10 @@ function FormPost() {
         <Input
           id="title"
           name="title"
+          value={postState.title}
+          onChange={(e) =>
+            setPostState({ ...postState, title: e.target.value })
+          }
           className={cn(
             errors?.title &&
               "border border-destructive focus-visible:ring-destructive"
@@ -65,6 +90,10 @@ function FormPost() {
         <Textarea
           id="message"
           name="message"
+          value={postState.message}
+          onChange={(e) =>
+            setPostState({ ...postState, message: e.target.value })
+          }
           className={cn(
             errors?.message &&
               "border border-destructive focus-visible:ring-destructive"
@@ -85,6 +114,8 @@ function FormPost() {
         <Input
           id="tags"
           name="tags"
+          value={postState.tags}
+          onChange={(e) => setPostState({ ...postState, tags: e.target.value })}
           className={cn(
             errors?.tags &&
               "border border-destructive focus-visible:ring-destructive"
@@ -109,6 +140,10 @@ function FormPost() {
           <Input
             id="selected_file"
             name="selected_file"
+            value={postState.selected_file}
+            onChange={(e) =>
+              setPostState({ ...postState, selected_file: e.target.value })
+            }
             className={cn(
               "peer ps-9",
               errors?.selected_file &&
@@ -123,15 +158,37 @@ function FormPost() {
           <p className="text-destructive text-sm">{errors.selected_file[0]}</p>
         )}
       </div>
-      <Button
-        name="_action"
-        value={actions.CREATE_POST}
-        type="submit"
-        disabled={state === "submitting"}
-        className="w-full"
-      >
-        Upload
-      </Button>
+      <div className="flex space-x-2">
+        <Button
+          name="_action"
+          value={
+            postState.id != null ? actions.UPDATE_POST : actions.CREATE_POST
+          }
+          type="submit"
+          disabled={state === "submitting"}
+          className="w-full"
+        >
+          {postState.id != null ? "Perbarui" : "Upload"} Memori
+        </Button>
+        {postState.id != null && (
+          <Button
+            variant="outline"
+            type="button"
+            onClick={() => {
+              setPostState({
+                id: undefined,
+                creator: "",
+                title: "",
+                message: "",
+                tags: "",
+                selected_file: "",
+              });
+            }}
+          >
+            Batal
+          </Button>
+        )}
+      </div>
     </Form>
   );
 }

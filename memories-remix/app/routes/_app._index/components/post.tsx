@@ -1,4 +1,4 @@
-import { actions, PostRes } from "~/services/post";
+import { actions, postAtom, PostRes } from "~/services/post";
 import { formatDistanceToNow } from "date-fns";
 import { Badge } from "~/components/ui/badge";
 import {
@@ -12,8 +12,10 @@ import { Button, buttonVariants } from "~/components/ui/button";
 import { Form } from "@remix-run/react";
 import { cn } from "~/lib/utils";
 import useFormSubmission from "~/hooks/use-form-submission";
+import { useAtom } from "jotai/index";
 
 function Post({ post }: { post: PostRes }) {
+  const [, setPostState] = useAtom(postAtom);
   const deleteSubmission = useFormSubmission(actions.DELETE_POST);
 
   return (
@@ -63,6 +65,16 @@ function Post({ post }: { post: PostRes }) {
             variant="outline"
             size="icon"
             aria-label="Edit"
+            onClick={() => {
+              setPostState({
+                id: post.id,
+                creator: post.creator,
+                title: post.title,
+                message: post.message,
+                tags: post.tags.join(", "),
+                selected_file: post.selected_file,
+              });
+            }}
           >
             <EditIcon size={16} strokeWidth={2} aria-hidden="true" />
           </Button>

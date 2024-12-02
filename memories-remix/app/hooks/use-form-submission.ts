@@ -1,7 +1,10 @@
 import { useActionData, useNavigation } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
 
-export default function useFormSubmission(action: string) {
+export default function useFormSubmission(
+  action: string,
+  props?: { onSuccess?: () => void }
+) {
   const actionData = useActionData<
     | ["error" | "success"]
     | ["error", { [k: string]: [string, ...string[]] | undefined }]
@@ -17,7 +20,7 @@ export default function useFormSubmission(action: string) {
   }>();
 
   useEffect(() => {
-    if (navigation.formData?.get('_action') === action) {
+    if (navigation.formData?.get("_action") === action) {
       if (prevNavState === "submitting") {
         if (actionData?.[0] === "error") {
           const errors = actionData[1];
@@ -25,11 +28,12 @@ export default function useFormSubmission(action: string) {
           if (errors) {
             setErrors(errors);
           } else {
-            alert("Gagal membuat memori");
+            alert("Gagal menyimpan data.");
             setErrors(undefined);
           }
         } else {
           formRef.current?.reset();
+          props?.onSuccess?.();
           setErrors(undefined);
         }
 

@@ -1,3 +1,4 @@
+use diesel::result::Error;
 use crate::application::dto::new_post::NewPostDto;
 use crate::domain::repositories::post_repository::PostRepository;
 use crate::domain::services::post_service::PostService;
@@ -14,12 +15,7 @@ impl<T: PostRepository> UpdatePostUseCase<T> {
         }
     }
 
-    pub async fn execute(&self, id: i32, new_post: NewPostDto) -> Result<Option<()>, diesel::result::Error> {
-        let existing_post = self.post_service.get_by_id(id).await?;
-        if existing_post.is_none() {
-            return Ok(None);
-        }
-        self.post_service.update_post(id, new_post).await?;
-        Ok(Some(()))
+    pub async fn execute(&self, id: i32, new_post: NewPostDto) -> Result<Option<()>, Error> {
+        self.post_service.update(id, new_post).await
     }
 }

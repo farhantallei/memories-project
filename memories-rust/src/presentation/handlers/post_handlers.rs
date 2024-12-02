@@ -1,17 +1,19 @@
-use actix_web::{get, post, put, web, HttpResponse};
+use actix_web::{delete, get, post, put, web, HttpResponse};
 use log::error;
 use crate::application::dto::new_post::NewPostDto;
 use crate::application::use_cases::create_post::CreatePostUseCase;
+use crate::application::use_cases::delete_post::DeletePostUseCase;
 use crate::application::use_cases::get_post::GetPostUseCase;
+use crate::application::use_cases::get_posts::GetPostsUseCase;
 use crate::application::use_cases::update_post::UpdatePostUseCase;
 use crate::infrastructure::repositories::postgres_post_repository::PostgresPostRepository;
 
 #[get("")]
-pub async fn get_all_posts_handler(
+pub async fn get_posts_handler(
     repo: web::Data<PostgresPostRepository>
 ) -> HttpResponse {
-    match GetPostUseCase::new(repo.into_inner())
-        .get_all().await {
+    match GetPostsUseCase::new(repo.into_inner())
+        .get().await {
         Ok(posts) => HttpResponse::Ok().json(posts),
         Err(_) => {
             error!("Error getting posts!");
@@ -21,12 +23,12 @@ pub async fn get_all_posts_handler(
 }
 
 #[get("/{id}")]
-pub async fn get_post_by_id_handler(
+pub async fn get_post_handler(
     repo: web::Data<PostgresPostRepository>,
     path: web::Path<(i32,)>,
 ) -> HttpResponse {
     match GetPostUseCase::new(repo.into_inner())
-        .get_by_id(path.into_inner().0).await {
+        .get(path.into_inner().0).await {
         Ok(post) => match post {
             Some(post) => HttpResponse::Ok().json(post),
             None => HttpResponse::NotFound().body("Post not found"),
@@ -67,6 +69,24 @@ pub async fn update_post_handler(
         },
         Err(_) => {
             error!("Error updating post!");
+            HttpResponse::InternalServerError().body("Please try again later")
+        }
+    }
+}
+
+#[delete("/{id}")]
+pub async fn delete_post_handler(
+    repo: web::Data<PostgresPostRepository>,
+    path: web::Path<(i32,)>,
+) -> HttpResponse {
+    match DeletePostUseCase::new(repo.into_inner())
+        .execute(path.into_inner().0).await {
+        Ok(res) => match res {
+            Some(_) => HttpResponse::Ok().finish(),
+            None => HttpResponse::NotFound().body("Post not found"),
+        },
+        Err(_) => {
+            error!("Error deleting post!");
             HttpResponse::InternalServerError().body("Please try again later")
         }
     }

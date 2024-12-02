@@ -1,3 +1,4 @@
+use diesel::result::Error;
 use crate::application::dto::new_post::NewPostDto;
 use crate::domain::entities::post::Post;
 use crate::domain::repositories::post_repository::PostRepository;
@@ -14,19 +15,23 @@ impl<T: PostRepository> PostService<T> {
         }
     }
 
-    pub async fn get_all(&self) -> Result<Vec<Post>, diesel::result::Error> {
+    pub async fn get_all(&self) -> Result<Vec<Post>, Error> {
         self.post_repo.find_all().await
     }
 
-    pub async fn get_by_id(&self, id: i32) -> Result<Option<Post>, diesel::result::Error> {
+    pub async fn get_by_id(&self, id: i32) -> Result<Option<Post>, Error> {
         self.post_repo.find_by_id(id).await
     }
 
-    pub async fn create_post(&self, new_post: NewPostDto) -> Result<(), diesel::result::Error> {
+    pub async fn create(&self, new_post: NewPostDto) -> Result<(), Error> {
         self.post_repo.save(&new_post).await
     }
 
-    pub async fn update_post(&self, id: i32, new_post: NewPostDto) -> Result<(), diesel::result::Error> {
+    pub async fn update(&self, id: i32, new_post: NewPostDto) -> Result<Option<()>, Error> {
         self.post_repo.update(id, &new_post).await
+    }
+
+    pub async fn delete(&self, id: i32) -> Result<Option<()>, Error> {
+        self.post_repo.delete(id).await
     }
 }

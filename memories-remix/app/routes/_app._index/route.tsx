@@ -8,6 +8,7 @@ import {
   createPost,
   deletePost,
   getPosts,
+  likePost,
   updatePost,
 } from "~/services/post";
 
@@ -29,6 +30,8 @@ export async function action({ request }: ActionFunctionArgs) {
       return await deletePost(data);
     case actions.UPDATE_POST:
       return await updatePost(data);
+    case actions.LIKE_POST:
+      return await likePost(data);
   }
 }
 

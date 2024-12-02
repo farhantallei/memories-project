@@ -47,18 +47,27 @@ function Post({ post }: { post: PostRes }) {
         )}
       </small>
       <div className="mt-4 flex justify-between space-x-2">
-        <Button className="py-0 pe-0" variant="outline">
-          <ThumbsUpIcon
-            className="me-2 opacity-60"
-            size={16}
-            strokeWidth={2}
-            aria-hidden="true"
-          />
-          Like
-          <span className="relative ms-3 inline-flex h-full items-center justify-center rounded-full px-3 text-xs font-medium text-muted-foreground before:absolute before:inset-0 before:left-0 before:w-px before:bg-input">
-            {post.like_count}
-          </span>
-        </Button>
+        <Form method="post">
+          <input type="hidden" name="id" value={post.id} />
+          <Button
+            name="_action"
+            value={actions.LIKE_POST}
+            className="py-0 pe-0"
+            variant="outline"
+            type="submit"
+          >
+            <ThumbsUpIcon
+              className="me-2 opacity-60"
+              size={16}
+              strokeWidth={2}
+              aria-hidden="true"
+            />
+            Like
+            <span className="relative ms-3 inline-flex h-full items-center justify-center rounded-full px-3 text-xs font-medium text-muted-foreground before:absolute before:inset-0 before:left-0 before:w-px before:bg-input">
+              {post.like_count}
+            </span>
+          </Button>
+        </Form>
         <div className="inline-flex -space-x-px rounded-lg shadow-sm shadow-black/5 rtl:space-x-reverse ml-auto">
           <Button
             className="rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg focus-visible:z-10"

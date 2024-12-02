@@ -22,6 +22,7 @@ export const actions = {
   CREATE_POST: "create-post",
   DELETE_POST: "delete-post",
   UPDATE_POST: "update-post",
+  LIKE_POST: "like-post",
 };
 
 export const postAtom = atom<Record<keyof PostReq, string> & { id?: number }>({
@@ -168,6 +169,28 @@ export async function deletePost(data: { [p: string]: FormDataEntryValue }) {
     const response = await fetch(`${process.env.SERVER_URL}/posts/${data.id}`, {
       method: "DELETE",
     });
+
+    if (!response.ok) {
+      return ["error"] as const;
+    }
+
+    return ["success"] as const;
+  } catch (err) {
+    console.error(err);
+    return ["error"] as const;
+  }
+}
+
+export async function likePost(data: { [p: string]: FormDataEntryValue }) {
+  if (!data.id) {
+    return ["error"] as const;
+  }
+
+  try {
+    const response = await fetch(
+      `${process.env.SERVER_URL}/posts/${data.id}/like`,
+      { method: "POST" }
+    );
 
     if (!response.ok) {
       return ["error"] as const;

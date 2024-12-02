@@ -6,9 +6,12 @@ import { Button } from "~/components/ui/button";
 import { LinkIcon } from "lucide-react";
 import { cn } from "~/lib/utils";
 import useFormSubmission from "~/hooks/use-form-submission";
+import { actions } from "~/services/post";
 
 function FormPost() {
-  const { formRef, firstInputRef, errors, state } = useFormSubmission();
+  const { formRef, firstInputRef, errors, state } = useFormSubmission(
+    actions.CREATE_POST
+  );
 
   return (
     <Form ref={formRef} replace className="space-y-2" method="post">
@@ -105,7 +108,6 @@ function FormPost() {
         <div className="relative">
           <Input
             id="selected_file"
-            type="url"
             name="selected_file"
             className={cn(
               "peer ps-9",
@@ -122,6 +124,8 @@ function FormPost() {
         )}
       </div>
       <Button
+        name="_action"
+        value={actions.CREATE_POST}
         type="submit"
         disabled={state === "submitting"}
         className="w-full"

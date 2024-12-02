@@ -1,13 +1,15 @@
 import React from "react";
-import type {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  MetaFunction,
-} from "@remix-run/node";
+import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
 import Posts from "~/routes/_app._index/components/posts";
 import FormPost from "~/routes/_app._index/components/form-post";
 import { useLoaderData } from "@remix-run/react";
-import { createPost, getPosts } from "~/services/post";
+import {
+  actions,
+  createPost,
+  deletePost,
+  getPosts,
+  updatePost,
+} from "~/services/post";
 
 export const meta: MetaFunction = () => {
   return [
@@ -16,12 +18,22 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function action(args: ActionFunctionArgs) {
-  return await createPost(args);
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const { _action, ...data } = Object.fromEntries(formData);
+
+  switch (_action) {
+    case actions.CREATE_POST:
+      return await createPost(data);
+    case actions.DELETE_POST:
+      return await deletePost(data);
+    case actions.UPDATE_POST:
+      return await updatePost(data);
+  }
 }
 
-export async function loader(args: LoaderFunctionArgs) {
-  return await getPosts(args);
+export async function loader() {
+  return await getPosts();
 }
 
 function Route() {

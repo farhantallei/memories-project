@@ -1,7 +1,7 @@
 import { useActionData, useNavigation } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
 
-export default function useFormSubmission() {
+export default function useFormSubmission(action: string) {
   const actionData = useActionData<
     | ["error" | "success"]
     | ["error", { [k: string]: [string, ...string[]] | undefined }]
@@ -17,25 +17,27 @@ export default function useFormSubmission() {
   }>();
 
   useEffect(() => {
-    if (prevNavState === "submitting") {
-      if (actionData?.[0] === "error") {
-        const errors = actionData[1];
+    if (navigation.formData?.get('_action') === action) {
+      if (prevNavState === "submitting") {
+        if (actionData?.[0] === "error") {
+          const errors = actionData[1];
 
-        if (errors) {
-          setErrors(errors);
+          if (errors) {
+            setErrors(errors);
+          } else {
+            alert("Gagal membuat memori");
+            setErrors(undefined);
+          }
         } else {
-          alert("Gagal membuat memori");
+          formRef.current?.reset();
           setErrors(undefined);
         }
-      } else {
-        formRef.current?.reset();
-        setErrors(undefined);
-      }
 
-      firstInputRef.current?.focus();
+        firstInputRef.current?.focus();
+      }
+      setPrevNavState(navigation.state);
     }
-    setPrevNavState(navigation.state);
   }, [navigation.state]);
 
-  return { formRef, firstInputRef, errors, state: navigation.state };
+  return { formRef, firstInputRef, errors, state: prevNavState };
 }

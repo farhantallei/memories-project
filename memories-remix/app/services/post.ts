@@ -1,4 +1,3 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import * as v from "valibot";
 
 type Post = {
@@ -18,9 +17,15 @@ type Post = {
 export type PostRes = Post;
 export type PostReq = Omit<Post, "id" | "like_count" | "created_at">;
 
-export async function getPosts({}: LoaderFunctionArgs) {
+export const actions = {
+  CREATE_POST: "create-post",
+  DELETE_POST: "delete-post",
+  UPDATE_POST: "update-post",
+}
+
+export async function getPosts() {
   try {
-    const posts = await fetch(`${process.env.SERVER_URL}/posts/`);
+    const posts = await fetch(`${process.env.SERVER_URL}/posts`);
 
     if (posts.ok) {
       return (await posts.json()) as Post[];
@@ -66,15 +71,12 @@ const postSchema = v.object({
   ),
 });
 
-export async function createPost({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const updates = Object.fromEntries(formData.entries());
-
-  const result = v.safeParse(postSchema, updates);
+export async function createPost(data: { [p: string]: FormDataEntryValue }) {
+  const result = v.safeParse(postSchema, data);
 
   if (result.success) {
     try {
-      const response = await fetch(`${process.env.SERVER_URL}/posts/`, {
+      const response = await fetch(`${process.env.SERVER_URL}/posts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -103,4 +105,68 @@ export async function createPost({ request }: ActionFunctionArgs) {
     selected_file: issues.nested?.selected_file,
   };
   return ["error", error] as const;
+}
+
+export async function updatePost(data: { [p: string]: FormDataEntryValue }) {
+  if (!data.id) {
+    return ["error"] as const;
+  }
+
+  const result = v.safeParse(postSchema, data);
+
+  if (result.success) {
+    try {
+      const response = await fetch(
+        `${process.env.SERVER_URL}/posts/${data.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(result.output),
+        }
+      );
+
+      if (!response.ok) {
+        return ["error"] as const;
+      }
+
+      return ["success"] as const;
+    } catch (err) {
+      console.error(err);
+      return ["error"] as const;
+    }
+  }
+
+  const issues = v.flatten<typeof postSchema>(result.issues);
+
+  const error = {
+    creator: issues.nested?.creator,
+    title: issues.nested?.title,
+    message: issues.nested?.message,
+    tags: issues.nested?.tags,
+    selected_file: issues.nested?.selected_file,
+  };
+  return ["error", error] as const;
+}
+
+export async function deletePost(data: { [p: string]: FormDataEntryValue }) {
+  if (!data.id) {
+    return ["error"] as const;
+  }
+
+  try {
+    const response = await fetch(`${process.env.SERVER_URL}/posts/${data.id}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      return ["error"] as const;
+    }
+
+    return ["success"] as const;
+  } catch (err) {
+    console.error(err);
+    return ["error"] as const;
+  }
 }

@@ -1,4 +1,4 @@
-import { PostRes } from "~/services/post";
+import { actions, PostRes } from "~/services/post";
 import { formatDistanceToNow } from "date-fns";
 import { Badge } from "~/components/ui/badge";
 import {
@@ -8,9 +8,14 @@ import {
   Trash2Icon,
   UserIcon,
 } from "lucide-react";
-import { Button } from "~/components/ui/button";
+import { Button, buttonVariants } from "~/components/ui/button";
+import { Form } from "@remix-run/react";
+import { cn } from "~/lib/utils";
+import useFormSubmission from "~/hooks/use-form-submission";
 
 function Post({ post }: { post: PostRes }) {
+  const deleteSubmission = useFormSubmission(actions.DELETE_POST);
+
   return (
     <div className="bg-white border rounded-lg p-6 mb-6">
       <h2 className="text-xl font-bold mb-2">{post.title}</h2>
@@ -61,14 +66,29 @@ function Post({ post }: { post: PostRes }) {
           >
             <EditIcon size={16} strokeWidth={2} aria-hidden="true" />
           </Button>
-          <Button
-            className="rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg focus-visible:z-10"
-            variant="outline"
-            size="icon"
-            aria-label="Delete"
+          <Form
+            method="delete"
+            className={cn(
+              buttonVariants({
+                variant: "outline",
+                size: "icon",
+              }),
+              "rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg focus-visible:z-10 aria-disabled:pointer-events-none aria-disabled:opacity-50"
+            )}
+            aria-disabled={deleteSubmission.state === "submitting"}
           >
-            <Trash2Icon size={16} strokeWidth={2} aria-hidden="true" />
-          </Button>
+            <input type="hidden" name="id" value={post.id} />
+            <button
+              name="_action"
+              value={actions.DELETE_POST}
+              aria-label="Delete"
+              type="submit"
+              className="w-full h-full flex justify-center items-center"
+              disabled={deleteSubmission.state === "submitting"}
+            >
+              <Trash2Icon size={16} strokeWidth={2} aria-hidden="true" />
+            </button>
+          </Form>
         </div>
       </div>
     </div>

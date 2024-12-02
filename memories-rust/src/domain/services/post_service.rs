@@ -1,6 +1,6 @@
+use crate::application::dto::new_post::NewPostDto;
 use crate::domain::entities::post::Post;
 use crate::domain::repositories::post_repository::PostRepository;
-use crate::presentation::handlers::post_handlers::NewPost;
 
 #[derive(Clone)]
 pub struct PostService<T: PostRepository> {
@@ -22,11 +22,11 @@ impl<T: PostRepository> PostService<T> {
         self.post_repo.find_by_id(id).await
     }
 
-    pub async fn create_post(&self, new_post: NewPost) -> Result<(), diesel::result::Error> {
+    pub async fn create_post(&self, new_post: NewPostDto) -> Result<(), diesel::result::Error> {
         self.post_repo.save(&new_post).await
     }
 
-    pub async fn update_post(&self, id: i32, new_post: NewPost) -> Result<(), diesel::result::Error> {
+    pub async fn update_post(&self, id: i32, new_post: NewPostDto) -> Result<(), diesel::result::Error> {
         self.post_repo.update(id, &new_post).await
     }
 }

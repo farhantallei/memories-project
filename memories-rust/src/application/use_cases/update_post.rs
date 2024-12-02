@@ -1,6 +1,6 @@
+use crate::application::dto::new_post::NewPostDto;
 use crate::domain::repositories::post_repository::PostRepository;
 use crate::domain::services::post_service::PostService;
-use crate::presentation::handlers::post_handlers::NewPost;
 
 pub struct UpdatePostUseCase<T: PostRepository> {
     post_service: PostService<T>,
@@ -14,7 +14,7 @@ impl<T: PostRepository> UpdatePostUseCase<T> {
         }
     }
 
-    pub async fn execute(&self, id: i32, new_post: NewPost) -> Result<Option<()>, diesel::result::Error> {
+    pub async fn execute(&self, id: i32, new_post: NewPostDto) -> Result<Option<()>, diesel::result::Error> {
         let existing_post = self.post_service.get_by_id(id).await?;
         if existing_post.is_none() {
             return Ok(None);

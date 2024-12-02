@@ -1,13 +1,10 @@
-use schema::posts;
 use actix_web::{get, post, put, web, HttpResponse};
-use diesel::{AsChangeset, Insertable};
 use log::error;
-use serde::Deserialize;
+use crate::application::dto::new_post::NewPostDto;
 use crate::application::use_cases::create_post::CreatePostUseCase;
 use crate::application::use_cases::get_post::GetPostUseCase;
 use crate::application::use_cases::update_post::UpdatePostUseCase;
 use crate::infrastructure::repositories::postgres_post_repository::PostgresPostRepository;
-use crate::schema;
 
 #[get("")]
 pub async fn get_all_posts_handler(
@@ -41,20 +38,10 @@ pub async fn get_post_by_id_handler(
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Insertable, AsChangeset)]
-#[diesel(table_name = posts)]
-pub struct NewPost {
-    pub title: String,
-    pub message: String,
-    pub creator: String,
-    pub tags: Vec<Option<String>>,
-    pub selected_file: String,
-}
-
 #[post("")]
 pub async fn create_post_handler(
     repo: web::Data<PostgresPostRepository>,
-    input: web::Json<NewPost>,
+    input: web::Json<NewPostDto>,
 ) -> HttpResponse {
     match CreatePostUseCase::new(repo.into_inner())
         .execute(input.into_inner()).await {
@@ -70,7 +57,7 @@ pub async fn create_post_handler(
 pub async fn update_post_handler(
     repo: web::Data<PostgresPostRepository>,
     path: web::Path<(i32,)>,
-    input: web::Json<NewPost>,
+    input: web::Json<NewPostDto>,
 ) -> HttpResponse {
     match UpdatePostUseCase::new(repo.into_inner())
         .execute(path.into_inner().0, input.into_inner()).await {

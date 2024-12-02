@@ -1,6 +1,6 @@
+use crate::application::dto::new_post::NewPostDto;
 use crate::domain::repositories::post_repository::PostRepository;
 use crate::domain::services::post_service::PostService;
-use crate::presentation::handlers::post_handlers::NewPost;
 
 pub struct CreatePostUseCase<T: PostRepository> {
     post_service: PostService<T>,
@@ -14,7 +14,7 @@ impl<T: PostRepository> CreatePostUseCase<T> {
         }
     }
 
-    pub async fn execute(&self, new_post: NewPost) -> Result<(), diesel::result::Error> {
+    pub async fn execute(&self, new_post: NewPostDto) -> Result<(), diesel::result::Error> {
         self.post_service.create_post(new_post).await
     }
 }
